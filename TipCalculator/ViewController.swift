@@ -15,6 +15,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet var billLabel: UITextField!
     @IBOutlet var tipControl: UISegmentedControl!
     @IBOutlet weak var pickerView: UIPickerView!
+    @IBOutlet var payAmount: UILabel!
+    var splitCount: Double = 1
     
     let split = ["1","2","3","4","5","6","7","8","9","10"]
     
@@ -30,11 +32,17 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return split[row]
     }
     
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        calculateTip(self)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         pickerView.delegate = self
         pickerView.dataSource = self
+        billLabel.becomeFirstResponder()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -62,9 +70,22 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let tip = bill * tipPercentages[tipControl.selectedSegmentIndex]
         let total = bill + tip
         
+//        NSInteger row;
+//        NSArray *repeatPickerData;
+//        UIPickerView *repeatPickerView;
+//
+//        let row = [pickerView selectedRowInComponent:0];
+//        self.strPrintRepeat = [repeatPickerData objectAtIndex:row];
+        let selectedValue = split[pickerView.selectedRow(inComponent: 0)]
+        
+        splitCount = Double(selectedValue)!
+        
+        let splitTotal = (bill + tip) / splitCount
+        
         
         tipLabel.text = String(format: "$%.2f", tip)
         totalLabel.text = String(format: "$%.2f", total)
+        payAmount.text = String(format: "$%.2f", splitTotal)
         
     }
 }
