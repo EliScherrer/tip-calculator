@@ -17,7 +17,18 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     @IBOutlet weak var pickerView: UIPickerView!
     @IBOutlet var payAmount: UILabel!
     var splitCount: Double = 1
+    let defaults = UserDefaults.standard
     
+    //text labels with no functionality
+    @IBOutlet var splitText: UILabel!
+    @IBOutlet var payText: UILabel!
+    @IBOutlet var totalText: UILabel!
+    @IBOutlet var tipText: UILabel!
+    
+    
+    //////////////////////////////
+          //picker view stuff
+    //////////////////////////////
     let split = ["1","2","3","4","5","6","7","8","9","10"]
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -32,10 +43,37 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return split[row]
     }
     
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        
+        if(defaults.bool(forKey: "lightMode")) {
+            let titleData = split[row]
+            let myTitle = NSAttributedString(
+                string: titleData,
+                attributes: [
+                    NSAttributedStringKey.font:UIFont(name: "Georgia", size: 15.0)!,
+                    NSAttributedStringKey.foregroundColor:UIColor.black
+                ])
+            return myTitle
+        }
+        else {
+            let titleData = split[row]
+            let myTitle = NSAttributedString(
+                string: titleData,
+                attributes: [
+                    NSAttributedStringKey.font:UIFont(name: "Georgia", size: 15.0)!,
+                    NSAttributedStringKey.foregroundColor:UIColor.white
+                ])
+            return myTitle
+        }
+    }
+    
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         calculateTip(self)
     }
     
+    /*////////////////////////////
+            loading stuff
+    //////////////////////////// */
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -43,6 +81,35 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         pickerView.dataSource = self
         billLabel.becomeFirstResponder()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        if(defaults.bool(forKey: "lightMode")) {
+            self.view.backgroundColor = UIColor.white
+            tipLabel.textColor = UIColor.black
+            totalLabel.textColor = UIColor.black
+            billLabel.textColor = UIColor.black
+            pickerView.backgroundColor = UIColor.white
+            payAmount.textColor = UIColor.black
+            splitText.textColor = UIColor.black
+            payText.textColor = UIColor.black
+            totalText.textColor = UIColor.black
+            tipText.textColor = UIColor.black
+        }
+        else {
+            self.view.backgroundColor = UIColor.black
+            tipLabel.textColor = UIColor.white
+            totalLabel.textColor = UIColor.white
+            billLabel.textColor = UIColor.white
+            pickerView.backgroundColor = UIColor.black
+            payAmount.textColor = UIColor.white
+            splitText.textColor = UIColor.white
+            payText.textColor = UIColor.white
+            totalText.textColor = UIColor.white
+            tipText.textColor = UIColor.white
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -54,6 +121,9 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         view.endEditing(true);
     }
     
+    //////////////////////////////
+         //buisness logic stuff
+    //////////////////////////////
     @IBAction func addMoneyLabel(_ sender: Any) {
         let curText = billLabel.text
         let cropped = String(curText!.characters.filter { "01234567890.".characters.contains($0) })
@@ -69,13 +139,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         let bill = Double(cropped) ?? 0
         let tip = bill * tipPercentages[tipControl.selectedSegmentIndex]
         let total = bill + tip
-        
-//        NSInteger row;
-//        NSArray *repeatPickerData;
-//        UIPickerView *repeatPickerView;
-//
-//        let row = [pickerView selectedRowInComponent:0];
-//        self.strPrintRepeat = [repeatPickerData objectAtIndex:row];
+
         let selectedValue = split[pickerView.selectedRow(inComponent: 0)]
         
         splitCount = Double(selectedValue)!
